@@ -1,19 +1,36 @@
 package com.pki.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.pki.config.PkiConfig;
+
 import java.io.*;
 import java.nio.file.*;
 
 @Service
 public class CertificateService {
-    private static final Path CERTS_DIR = Paths.get("/home/sidney/Documentos/UnB/UNBSIGN/UnbSign-PKI/simplepki/certs");
-    private static final Path OPENSSL_CONFIG_PATH = Paths.get("/home/sidney/Documentos/UnB/UNBSIGN/UnbSign-PKI/simplepki/etc/unbsub-ca.conf");
+
+    private final PkiConfig pkiConfig;
+
+    private final Path CERTS_DIR;
+    private final Path OPENSSL_CONFIG_PATH;
+
+    @Autowired
+    public CertificateService(PkiConfig pkiConfig) {
+        this.pkiConfig = pkiConfig;
+        
+        this.CERTS_DIR = pkiConfig.getCertsDir();
+        this.OPENSSL_CONFIG_PATH = pkiConfig.getOpensslConfigPath();
+    }
 
     public String signCsr(String certificateRequest, String commonName) throws IOException, InterruptedException {
-        Path csrFilePath = CERTS_DIR.resolve(commonName + ".csr");
+        String processedName = commonName.replaceAll("\\s+", "_").toLowerCase();
+        
+        Path csrFilePath = CERTS_DIR.resolve(processedName + ".csr");
         Files.write(csrFilePath, certificateRequest.getBytes(), StandardOpenOption.CREATE);
 
-        Path certFilePath = CERTS_DIR.resolve(commonName + ".crt");
+        Path certFilePath = CERTS_DIR.resolve(processedName + ".crt");
 
         String command = String.join(" ",
             "openssl", "ca",
@@ -25,12 +42,15 @@ public class CertificateService {
 
         executeScript(command);
 
-        return Files.readString(certFilePath);
+        String certContent = Files.readString(certFilePath);
+
+        
+        return extractCertificate(certContent);
 
     }
 
     private void executeScript(String command) throws IOException, InterruptedException {
-        String scriptPath = "/home/sidney/Documentos/UnB/UNBSIGN/UnbSign-PKI/pki/src/main/resources/run_openssl.sh";
+        String scriptPath = getClass().getClassLoader().getResource("run_openssl.sh").getPath();
 
         ProcessBuilder processBuilder = new ProcessBuilder(scriptPath, command);
         processBuilder.redirectErrorStream(true);
@@ -48,5 +68,21 @@ public class CertificateService {
             }
         }
 
+    }
+
+    private String extractCertificate(String certContent) {
+        // Localiza a posição das tags BEGIN e END CERTIFICATE
+        String beginTag = "-----BEGIN CERTIFICATE-----";
+        String endTag = "-----END CERTIFICATE-----";
+        
+        int beginIndex = certContent.indexOf(beginTag);
+        int endIndex = certContent.indexOf(endTag);
+
+        if (beginIndex == -1 || endIndex == -1) {
+            throw new IllegalArgumentException("Certificado não encontrado no formato esperado");
+        }
+
+        // Extraímos o conteúdo entre as tags
+        return certContent.substring(beginIndex, endIndex + endTag.length());
     }
 }
