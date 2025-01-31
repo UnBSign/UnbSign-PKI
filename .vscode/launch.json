@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-PkiApplication<pki>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.pki.PkiApplication",
+            "projectName": "pki",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

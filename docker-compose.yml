@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  api-pki:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api-pki
+    network_mode: host
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./simplepki:/app/simplepki
+    restart: always
