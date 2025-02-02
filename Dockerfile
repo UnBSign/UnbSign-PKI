@@ -15,6 +15,9 @@ RUN apt-get update && \
 WORKDIR /app
 
 COPY simplepki /app/simplepki
+
+RUN mkdir -p /app/simplepki/certs
+
 COPY pki/run_openssl.sh /app/run_openssl.sh
 
 RUN chmod +x /app/run_openssl.sh
