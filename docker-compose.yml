@@ -6,9 +6,14 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: api-pki
-    network_mode: host
     ports:
       - "8081:8081"
     volumes:
       - ./simplepki:/app/simplepki
     restart: always
+    networks:
+      - unbsign-webapp_unbsign-network
+
+networks:
+  unbsign-webapp_unbsign-network:
+    external: true
