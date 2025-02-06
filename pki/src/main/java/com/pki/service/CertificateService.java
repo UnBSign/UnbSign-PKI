@@ -77,7 +77,6 @@ public class CertificateService {
     }
 
     private String extractCertificate(String certContent) {
-        // Localiza a posição das tags BEGIN e END CERTIFICATE
         String beginTag = "-----BEGIN CERTIFICATE-----";
         String endTag = "-----END CERTIFICATE-----";
         
@@ -88,7 +87,6 @@ public class CertificateService {
             throw new IllegalArgumentException("Certificado não encontrado no formato esperado");
         }
 
-        // Extraímos o conteúdo entre as tags
         return certContent.substring(beginIndex, endIndex + endTag.length());
     }
 
