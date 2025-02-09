@@ -46,12 +46,6 @@ public class CertificateController {
 
     }
 
-    @GetMapping("/teste")
-    public String getMethodName() {
-        return "Muy bueno";
-    }
-    
-
     @PostMapping("/validate")
     public ResponseEntity<?> validateCertificates(@RequestBody SerialNumbersRequest request) {
         List<String> serialNumbers = request.getSerialNumbers();

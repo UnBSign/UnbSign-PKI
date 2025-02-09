@@ -110,6 +110,10 @@ public class CertificateService {
         
         String certPattern = ".*Z\\t\\t([0-9A-F]{40})\\tunknown";
         Pattern pattern = Pattern.compile(certPattern);
+
+        if (serial.length() < 40) {
+            serial = String.format("%40s", serial).replace(' ', '0');
+        }
         
         try (BufferedReader br = Files.newBufferedReader(DB_PATH)) {
             String line;
